@@ -1,50 +1,51 @@
-# Batch Connect app configuration file
-#
-# @note Used to define the submitted cluster, title, description, and
-#   hard-coded/user-defined attributes that make up this Batch Connect app.
 ---
+cluster: "cbe"
 
-# **MUST** set cluster id here that matches cluster configuration file located
-# under /etc/ood/config/clusters.d/*.yml
-# @example Use the Owens cluster at Ohio Supercomputer Center
-#     cluster: "owens"
-cluster: ""
-
-# Define attribute values that aren't meant to be modified by the user within
-# the Dashboard form
+# Fixed locations used by the Streamlit app on CBE.next.
 attributes:
-  # Set the corresponding modules that need to be loaded for Jupyter to run
-  #
-  # @note It is called within the batch job as `module load <modules>` if
-  #   defined
-  # @example Do not load any modules
-  #     modules: ""
-  # @example Using default python module
-  #     modules: "python"
-  # @example Using specific python module
-  #     modules: "python/3.5"
-  # @example Using combination of modules
-  #     modules: "python/3.5 cuda/8.0.44"
-  modules: "python"
-
-  # Any extra command line arguments to feed to the `jupyter notebook ...`
-  # command that launches the Jupyter notebook within the batch job
-  extra_jupyter_args: ""
-
-# All of the attributes that make up the Dashboard form (in respective order),
-# and made available to the submit configuration file and the template ERB
-# files
-#
-# @note You typically do not need to modify this unless you want to add a new
-#   configurable value
-# @note If an attribute listed below is hard-coded above in the `attributes`
-#   option, then it will not appear in the form page that the user sees in the
-#   Dashboard
+  modules: ""
+  app:
+    widget: "radio"
+    label: "Applications"
+    value: "0"
+    help: "Choose the application developed by streamlit."
+    options:
+      - ["Alphafold3 Screening","0"]
+      - ["Small RNA prediction and mRNA Codon Optimization","1"]
+  partition:
+    widget: "select"
+    label: "Partition"
+    help: "Slurm partition to submit the job to. Sessions on GPU (g) get one GPU of the type chosen below. Sessions on high memory (m) need at least 200 GB memory."
+    options:
+      - ["CPU (c)", "c"]
+  cores:
+    widget: "select"
+    label: "CPU cores"
+    help: "Number of CPU cores to request (--cpus-per-task)."
+    options:
+      - ["1", "1"]
+  ram:
+    widget: "select"
+    label: "Memory (GB)"
+    help: "Amount of memory to request, in GB. The high memory (m) partition offers 200 GB to 1000 GB; the other partitions up to 128 GB."
+    options:
+      - ["4 GB", "4", data-only-partition: "c,g"]
+      - ["8 GB", "8", data-only-partition: "c,g"]
+  bc_num_hours:
+    widget: "select"
+    label: "Wall time (hours)"
+    help: |
+      OnDemand sessions can run for at most 12 hours, on every partition.
+      For longer work, submit a batch job with `sbatch` from a login node: batch jobs
+      can run for up to 14 days.
+    value: "4"
+    options:
+                
+# CBE.next uses Slurm. As in the IT example, omit bc_num_slots (node count)
+# and bc_email_on_started (email notifications are not configured there).
 form:
-  - modules
-  - extra_jupyter_args
-  - bc_account
-  - bc_queue
-  - bc_num_hours
-  - bc_num_slots
-  - bc_email_on_started
+  - app
+  - partition  
+  - cores 
+  - ram  
+  - bc_num_hours  
